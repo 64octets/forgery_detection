@@ -83,9 +83,9 @@ function detection_map = InterpolateDetection (path)
     %F_BC = imresize(F_BC, (1/N), 'bicubic');
     
     %BEST OUTPUT WE HAVE RIGHT NOW
-    figure; imshow(ifft2(G_NN));
-    figure; imshow(ifft2(G_BC));
-    figure; imshow(ifft2(G_BL));
+    %figure; imshow(ifft2(G_NN));
+    %figure; imshow(ifft2(G_BC));
+    %figure; imshow(ifft2(G_BL));
     
     %figure; imshow(ifft2(F_NN));
     %figure; imshow(ifft2(F_BC));
