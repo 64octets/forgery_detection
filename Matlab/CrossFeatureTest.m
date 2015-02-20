@@ -51,7 +51,7 @@ function output = CrossFeatureTest (img_path, resaved_img_path, block_size, q_mu
     %figure, displayMatrixInColorImage(kmap);
     figure, imshow(rgb2gray(qmapImg));
     figure, imshow(imapImg);
-    figure, displayMatrixInColorImage(imapImg);
+    %figure, displayMatrixInColorImage(imapImg);
 end
 
 function NoiseLv = NoiseEstimate(I)
