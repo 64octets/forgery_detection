@@ -45,12 +45,12 @@ function output = CrossFeatureTest (img_path, resaved_img_path, block_size, q_mu
     %figure, bar3(output);
     %figure, surf(output);
     %figure, plot(output_vector); % output in sequence signal
-    figure, displayMatrixInColorImage(output);
+    figure('name','Proposed Algorithm'); displayMatrixInColorImage(output);
     %figure, imshow(output);
     %figure, displayMatrixInColorImage(nmap);
     %figure, displayMatrixInColorImage(kmap);
-    figure, imshow(rgb2gray(qmapImg));
-    figure, imshow(imapImg);
+    figure('name','Quantization Noise'); imshow(rgb2gray(qmapImg));
+    figure('name','Re-Interpolation'); imshow(imapImg);
     %figure, displayMatrixInColorImage(imapImg);
 end
 
