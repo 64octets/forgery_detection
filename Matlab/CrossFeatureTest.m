@@ -39,8 +39,10 @@ function output = CrossFeatureTest (img_path, resaved_img_path, block_size, q_mu
          output(i,j) = out_vect(1,3);
         end
     end
+    
     %adjust value range of the output
     output = abs(output);
+    %{
     min_val = min(output(:));
     max_val = max(output(:));
     
@@ -52,17 +54,17 @@ function output = CrossFeatureTest (img_path, resaved_img_path, block_size, q_mu
     for i = 1:w
         for j = 1:h
             output(i,j) = ((max_val - output(i,j)) / range);
-            %{
-            if output(i,j) > 0.9
+            
+            if output(i,j) > 0.8
                 output(i, j) = 0;
             else
-            %}    
-            if output(i, j) < 0.3
+            
+            if output(i, j) < 0.1
                 output(i,j) = 1;
             end
         end
     end
-    
+    %}    
     %output_vector = output(:);
     
     %malfunction due to NaN value within the output matrix
