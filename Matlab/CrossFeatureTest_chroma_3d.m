@@ -1,8 +1,8 @@
 
-function output = CrossFeatureTest_chroma (img_path, resaved_img_path, block_size, q_multi_factor)
+function output = CrossFeatureTest_chroma_3d (img_path, resaved_img_path, block_size, q_multi_factor)
 
-    FEATURE = 4; % 1 for quantization, 2 for noise estimation, 3 for interpolation, 4 for kurtosis
-    COMBINATION = 3; % 1-Cb:Cr; 2-Y:Cr; 3-Y:Cb
+    FEATURE = 1; % 1 for quantization, 2 for noise estimation, 3 for interpolation, 4 for kurtosis
+    %COMBINATION = 1; % 1-Cb:Cr; 2-Y:Cr; 3-Y:Cb
     
     if FEATURE == 1
         Img = getQuatizationNoiseMap(img_path, resaved_img_path, q_multi_factor); % for entire images
@@ -39,30 +39,16 @@ function output = CrossFeatureTest_chroma (img_path, resaved_img_path, block_siz
     %- compute pricipal vector of the whole image --
     %compute variance for qmap and imap
     if FEATURE == 1
-        if COMBINATION == 1
-            var_all1 = var(double(Cb(:)));
-            var_all2 = var(double(Cr(:)));
-        elseif COMBINATION == 2
-            var_all1 = var(double(Y(:)));
-            var_all2 = var(double(Cr(:)));
-        elseif COMBINATION == 3
-            var_all1 = var(double(Y(:)));
-            var_all2 = var(double(Cb(:)));
-        end
+        var_all0 = var(double(Y(:)));
+        var_all1 = var(double(Cb(:)));
+        var_all2 = var(double(Cr(:)));
     elseif FEATURE == 2 || FEATURE == 4
-        if COMBINATION == 1
-           var_all1 = Cb;
-           var_all2 = Cr;
-        elseif COMBINATION == 2
-           var_all1 = Y;
-           var_all2 = Cr;
-        elseif COMBINATION == 3
-           var_all1 = Y;
-           var_all2 = Cb;
-        end
+        var_all0 = Y;
+        var_all1 = Cb;
+        var_all2 = Cr;
     end
     %Principal_vect = [Noise_all Kurtosis_all 0];
-    Principal_vect = [var_all1 var_all2 0];
+    Principal_vect = [var_all0 var_all1 var_all2];
     %-----------------------------------------------
     
     [w h] = size(Cb_local);
@@ -74,20 +60,20 @@ function output = CrossFeatureTest_chroma (img_path, resaved_img_path, block_siz
          %V.   construct vector of results
          %vect = [nmap(i,j) kmap(i,j) 0];
          
-        if COMBINATION == 1
-            vect = [Cb_local(i,j) Cr_local(i,j) 0];
-        elseif COMBINATION == 2
-            vect = [Y_local(i,j) Cr_local(i,j) 0];
-        elseif COMBINATION == 3
-            vect = [Y_local(i,j) Cb_local(i,j) 0];
-        end
+        vect = [Y_local(i,j) Cb_local(i,j) Cr_local(i,j)];
          
          %vect = [imap(i,j) qmap(i,j) 0];
          
          %VI.  do cross product
          %out_vect = cross(vect, Principal_vect);
          out_vect = cross(Principal_vect, vect);
-         output(i,j) = out_vect(1,3);
+         %{
+         output(i,j) = sqrt(out_vect(1,1)^2 + out_vect(1,2)^2 + out_vect(1,3)^2);
+         if (out_vect(1,1) * out_vect(1,2) * out_vect(1,3)) < 0
+            output(i,j) = -output(i,j);
+         end
+         %}
+         output(i,j) = 100 * (out_vect(1,1) + out_vect(1,2) + out_vect(1,3));
         end
     end
     
@@ -97,6 +83,9 @@ function output = CrossFeatureTest_chroma (img_path, resaved_img_path, block_siz
     %figure, bar3(output);
     figure, surf(output);
     figure('name','Proposed Algorithm'); displayMatrixInColorImage(output);
+    figure('name','Y'); imshow(YCbCr(:,:,1));
+    figure('name','Cb'); imshow(YCbCr(:,:,2));
+    figure('name','Cr'); imshow(YCbCr(:,:,3));
     
     if FEATURE == 1
         figure('name','Original Image'); imshow(img_path);
@@ -106,14 +95,14 @@ function output = CrossFeatureTest_chroma (img_path, resaved_img_path, block_siz
         figure('name','Qmap Cr'); imshow(Cr);
     elseif FEATURE == 2
         figure('name','Original Image'); imshow(img_path);
-        figure('name','Nmap Y'); imshow(YCbCr(:,:,1));
-        figure('name','Nmap Cb'); imshow(YCbCr(:,:,2));
-        figure('name','Nmap Cr'); imshow(YCbCr(:,:,3));
-    elseif FEATURE == 2
+        figure('name','Nmap Y');  displayMatrixInColorImage(Y_local);
+        figure('name','Nmap Cb'); displayMatrixInColorImage(Cb_local);
+        figure('name','Nmap Cr'); displayMatrixInColorImage(Cr_local);
+    elseif FEATURE == 4
         figure('name','Original Image'); imshow(img_path);
-        figure('name','Kmap Y'); imshow(YCbCr(:,:,1));
-        figure('name','Kmap Cb'); imshow(YCbCr(:,:,2));
-        figure('name','Kmap Cr'); imshow(YCbCr(:,:,3));
+        figure('name','Kmap Y');  displayMatrixInColorImage(Y_local);
+        figure('name','Kmap Cb'); displayMatrixInColorImage(Cb_local);
+        figure('name','Kmap Cr'); displayMatrixInColorImage(Cr_local);
     end
     
     %figure, plot(output_vector); % output in sequence signal

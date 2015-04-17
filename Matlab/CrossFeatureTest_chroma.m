@@ -2,7 +2,7 @@
 function output = CrossFeatureTest_chroma (img_path, resaved_img_path, block_size, q_multi_factor)
 
     FEATURE = 2; % 1 for quantization, 2 for noise estimation, 3 for interpolation, 4 for kurtosis
-    COMBINATION = 1; % 1-Cb:Cr; 2-Y:Cr; 3-Y:Cb
+    COMBINATION = 2; % 1-Cb:Cr; 2-Y:Cr; 3-Y:Cb
     
     if FEATURE == 1
         Img = getQuatizationNoiseMap(img_path, resaved_img_path, q_multi_factor); % for entire images
