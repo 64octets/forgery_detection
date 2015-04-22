@@ -3,7 +3,8 @@ function output = TEST_BLIND_NOISE_AUTO (img_path, block_size)
 
     img_noise = NoiseEstimate(IMG);
     nmap = getNoiseEstimationMap(img_path, block_size); % for each blocks
-    figure, displayMatrixInColorImage(nmap);
+    output = nmap;
+    %figure, displayMatrixInColorImage(nmap);
 end
 
 function NoiseLv = NoiseEstimate(I)
