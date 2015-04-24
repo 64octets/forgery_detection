@@ -11,31 +11,42 @@ function output = TEST_AUTO_T1(ROOT_TEST_DIR_PATH)
     
     block_size = 3;
     q_multi_factor = 50;
-    COMBINATION = 2; % Y + Cr Channels
 
     if length(T1_ORIGINAL) == length(T1_RESAVED)
         for i = 1:length(T1_ORIGINAL)
             FILE_NAME_PREFIX = strcat(PATH_OUTPUT, int2str(i));
             
             %Test on CrossFeature(JPEGQuantization)
+            out1_qCbCr = CrossFeatureTest_chroma_AUTO(strcat(PATH_ORIGINAL, T1_ORIGINAL(i).name), strcat(PATH_RESAVED, T1_RESAVED(i).name), block_size, q_multi_factor, 1, 1);
+            out1_qYCr = CrossFeatureTest_chroma_AUTO(strcat(PATH_ORIGINAL, T1_ORIGINAL(i).name), strcat(PATH_RESAVED, T1_RESAVED(i).name), block_size, q_multi_factor, 1, 2);
+            out1_qYCb = CrossFeatureTest_chroma_AUTO(strcat(PATH_ORIGINAL, T1_ORIGINAL(i).name), strcat(PATH_RESAVED, T1_RESAVED(i).name), block_size, q_multi_factor, 1, 3);
+            imagesc(out1_qCbCr);
+            saveas(gcf,strcat(FILE_NAME_PREFIX, '_cross_q_CbCr'),'jpg');
+            imagesc(out1_qYCr);
+            saveas(gcf,strcat(FILE_NAME_PREFIX, '_cross_q_YCr'),'jpg');
+            imagesc(out1_qYCb);
+            saveas(gcf,strcat(FILE_NAME_PREFIX, '_cross_q_YCb'),'jpg');
             
             %Test on JPEGQuantization
+            out2 = TEST_QUANTIZE_AUTO (strcat(PATH_ORIGINAL, T1_ORIGINAL(i).name), strcat(PATH_RESAVED, T1_RESAVED(i).name), block_size, q_multi_factor);
+            imagesc(out2);
+            saveas(gcf,strcat(FILE_NAME_PREFIX, '_q'),'jpg');
             
             %Test on CrossFeature(NoiseEstimation)
-            out3_CbCr = CrossFeatureTest_chroma_AUTO(strcat(PATH_ORIGINAL, T1_ORIGINAL(i).name), strcat(PATH_RESAVED, T1_RESAVED(i).name), block_size, q_multi_factor, 2, 1);
-            out3_YCr = CrossFeatureTest_chroma_AUTO(strcat(PATH_ORIGINAL, T1_ORIGINAL(i).name), strcat(PATH_RESAVED, T1_RESAVED(i).name), block_size, q_multi_factor, 2, 2);
-            out3_YCb = CrossFeatureTest_chroma_AUTO(strcat(PATH_ORIGINAL, T1_ORIGINAL(i).name), strcat(PATH_RESAVED, T1_RESAVED(i).name), block_size, q_multi_factor, 2, 3);
-            imagesc(out3_CbCr);
-            saveas(gcf,strcat(FILE_NAME_PREFIX, '_cross_noise_CbCr'),'jpg');
-            imagesc(out3_YCr);
-            saveas(gcf,strcat(FILE_NAME_PREFIX, '_cross_noise_YCr'),'jpg');
-            imagesc(out3_YCb);
-            saveas(gcf,strcat(FILE_NAME_PREFIX, '_cross_noise_YCb'),'jpg');
+            out3_nCbCr = CrossFeatureTest_chroma_AUTO(strcat(PATH_ORIGINAL, T1_ORIGINAL(i).name), strcat(PATH_RESAVED, T1_RESAVED(i).name), block_size, q_multi_factor, 2, 1);
+            out3_nYCr = CrossFeatureTest_chroma_AUTO(strcat(PATH_ORIGINAL, T1_ORIGINAL(i).name), strcat(PATH_RESAVED, T1_RESAVED(i).name), block_size, q_multi_factor, 2, 2);
+            out3_nYCb = CrossFeatureTest_chroma_AUTO(strcat(PATH_ORIGINAL, T1_ORIGINAL(i).name), strcat(PATH_RESAVED, T1_RESAVED(i).name), block_size, q_multi_factor, 2, 3);
+            imagesc(out3_nCbCr);
+            saveas(gcf,strcat(FILE_NAME_PREFIX, '_cross_n_CbCr'),'jpg');
+            imagesc(out3_nYCr);
+            saveas(gcf,strcat(FILE_NAME_PREFIX, '_cross_n_YCr'),'jpg');
+            imagesc(out3_nYCb);
+            saveas(gcf,strcat(FILE_NAME_PREFIX, '_cross_n_YCb'),'jpg');
             
             %Test on NoiseEstimation
             out4 = TEST_BLIND_NOISE_AUTO (strcat(PATH_ORIGINAL, T1_ORIGINAL(i).name), block_size);
             imagesc(out4);
-            saveas(gcf,strcat(FILE_NAME_PREFIX, '_noise'),'jpg');
+            saveas(gcf,strcat(FILE_NAME_PREFIX, '_n'),'jpg');
         end
     else
         %Abort: Do nothing
