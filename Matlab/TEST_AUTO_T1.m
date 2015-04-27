@@ -47,6 +47,20 @@ function output = TEST_AUTO_T1(ROOT_TEST_DIR_PATH)
             out4 = TEST_BLIND_NOISE_AUTO (strcat(PATH_ORIGINAL, T1_ORIGINAL(i).name), block_size);
             imagesc(out4);
             saveas(gcf,strcat(FILE_NAME_PREFIX, '_n'),'jpg');
+            
+            %create final conclusion image
+            figure('name','Summary');
+            subplot(3,3,1), subimage(imread(strcat(PATH_ORIGINAL, T1_ORIGINAL(i).name)));	axis off; axis tight;           title('original');
+            subplot(3,3,2), subimage(imread(strcat(FILE_NAME_PREFIX, '_q.jpg')));           axis off; axis tight;           title('qmap');
+            subplot(3,3,3), subimage(imread(strcat(FILE_NAME_PREFIX, '_n.jpg')));           axis off; axis tight;           title('nmap');
+            subplot(3,3,4), subimage(imread(strcat(FILE_NAME_PREFIX, '_cross_q_CbCr.jpg')));	axis off; axis tight;       title('cross Q CbCr');
+            subplot(3,3,5), subimage(imread(strcat(FILE_NAME_PREFIX, '_cross_q_YCr.jpg')));     axis off; axis tight;       title('cross Q YCr');
+            subplot(3,3,6), subimage(imread(strcat(FILE_NAME_PREFIX, '_cross_q_YCb.jpg')));     axis off; axis tight;       title('cross Q YCb');
+            subplot(3,3,7), subimage(imread(strcat(FILE_NAME_PREFIX, '_cross_n_CbCr.jpg')));	axis off; axis tight;       title('cross N CbCr');
+            subplot(3,3,8), subimage(imread(strcat(FILE_NAME_PREFIX, '_cross_n_YCr.jpg'))); 	axis off; axis tight;       title('cross N YCr');
+            subplot(3,3,9), subimage(imread(strcat(FILE_NAME_PREFIX, '_cross_n_YCb.jpg')));     axis off; axis tight;       title('cross N YCb');
+            saveas(gcf,strcat(FILE_NAME_PREFIX, '_sum'),'jpg');
+            close all;
         end
     else
         %Abort: Do nothing
