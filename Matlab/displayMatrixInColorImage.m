@@ -1,7 +1,7 @@
 function displayMatrixInColorImage (img_matrix)
     mat = img_matrix;
     imagesc(mat);            %# Create a colored plot of the matrix values
-    %colormap(flipud(gray));  %# Change the colormap to gray (so higher values are
+    colormap(flipud(gray));  %# Change the colormap to gray (so higher values are
                              %#   black and lower values are white)
 
     %{
