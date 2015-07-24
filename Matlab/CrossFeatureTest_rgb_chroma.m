@@ -152,9 +152,9 @@ function output = getNoiseEstimationMapByBlocks (IMG, block_size)
         n = 1;
         while (j + block_size <= img_h)
             current_block = IMG((i:i+block_size),(j:j+block_size));
-            Noise_each = NoiseEstimate(current_block);  
+            Noise_each = NoiseEstimate(current_block);
             %fprintf('noise each = %i\n', Noise_each);
-            output(m,n) = Noise_each;            
+            output(m,n) = Noise_each;
             j = j + block_size;
             n = n + 1;
         end
