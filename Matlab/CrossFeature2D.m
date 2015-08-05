@@ -32,11 +32,11 @@ function output = CrossFeature2D (r1, r2, principal_vect)
     output = abs(output);
     
     %display output
-    figure('name','R1'), displayMatrixInColorImage(r1);
-    figure('name','R2'), displayMatrixInColorImage(r2);
+    %figure('name','R1'), displayMatrixInColorImage(r1);
+    %figure('name','R2'), displayMatrixInColorImage(r2);
     
-    figure('name','Proposed Algorithm: SURF'), surf(output);
-    figure('name','Proposed Algorithm'); displayMatrixInColorImage(output);
+    %figure('name','Proposed Algorithm: SURF'), surf(output);
+    %figure('name','Proposed Algorithm'); displayMatrixInColorImage(output);
 end
 
 function displayMatrixInColorImage (img_matrix)

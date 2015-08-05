@@ -1,7 +1,7 @@
 % this function responsible for creating detection map for re-interpolation processes 
 % on EACH RE_INTERPOLATED IMAGE BLOCK.
 
-function output = getIMAP (img_path, block_size)
+function output = getIMAP (img_path, block_size, is_quantize, have_block_process)
 
     %--------------------GET RE_INTERPOLATED IMG---------------------------%
     %----------------------------------------------------------------------%
@@ -66,10 +66,80 @@ function output = getIMAP (img_path, block_size)
     %output for Non-Forged Region G = Diff O-C
     %size(O)
     %size(C_NN)
-    G_NN = O - C_NN;
-    G_BL = O - C_BL;
-    G_BC = O - C_BC;
+    
+    [x,y,z] = size(O);
 
+    %////////////////////////// G_NN = O - C_NN;
+    [i,j] = size(C_NN);
+    if (x < i)
+        width = x;
+    else
+        width = i;
+    end
+    
+    if (y < j)
+        height = y;
+    else
+        height = j;
+    end
+
+    G_NN = zeros(width, height, 3);
+    for k = 1:width
+        for l = 1:height
+            for m = 1:3 %for 3 channel RGB
+                G_NN(k,l,m) = O(k,l,m) - C_NN(k,l,m);
+            end
+        end
+    end
+    %G_NN = O - C_NN;
+    
+    %////////////////////////// G_NN = O - C_BL;
+    [i,j] = size(C_BL);
+    if (x < i)
+        width = x;
+    else
+        width = i;
+    end
+    
+    if (y < j)
+        height = y;
+    else
+        height = j;
+    end
+
+    G_BL = zeros(width, height, 3);
+    for k = 1:width
+        for l = 1:height
+            for m = 1:3 %for 3 channel RGB
+                G_BL(k,l,m) = O(k,l,m) - C_BL(k,l,m);
+            end
+        end
+    end   
+    %G_BL = O - C_BL;
+    
+    %////////////////////////// G_NN = O - C_BC;
+    [i,j] = size(C_BC);
+    if (x < i)
+        width = x;
+    else
+        width = i;
+    end
+    
+    if (y < j)
+        height = y;
+    else
+        height = j;
+    end
+
+    G_BC = zeros(width, height, 3);
+    for k = 1:width
+        for l = 1:height
+            for m = 1:3 %for 3 channel RGB
+                G_BC(k,l,m) = O(k,l,m) - C_BC(k,l,m);
+            end
+        end
+    end    
+    %G_BC = O - C_BC;
     %///////////////////////////////////////////////////////
     
     raw_detection_map = ifft2(G_BL);
@@ -84,38 +154,45 @@ function output = getIMAP (img_path, block_size)
     DMAP_BC = F_BC - G_BC;
     %}
     
-    %figure('name','BC'), imshow(raw_detection_map);
+    %figure('name','BL'), imshow(raw_detection_map);
     %---------------------END OF RE-INTERPOLATION--------------------------%
     
     % compute variance on each blocks
     
     % we use only one channel of RGB (i.e. Green) to prevent redundancy in results
-    raw_detection_map = raw_detection_map(:,:,2); %G Channel of RGB
-    
-    [img_w img_h] = size(raw_detection_map);
-    i = 1;
-    
-    imap = zeros(int8(img_w/block_size), int8(img_h/block_size));
-    
-    m = 1;
-    while (i + block_size <= img_w)
-        j = 1;
-        n = 1;
-        while (j + block_size <= img_h)
-            current_block = raw_detection_map((i:i+block_size),(j:j+block_size));
-            Var_INoise_each = var(double(current_block(:)));  
-            %fprintf('tour = %i %i\n', m, n);
-            imap(m,n) = Var_INoise_each;            
-            j = j + block_size;
-            n = n + 1;
+    if have_block_process == 1
+        raw_detection_map = raw_detection_map(:,:,2); %G Channel of RGB
+
+        [img_w img_h] = size(raw_detection_map);
+        i = 1;
+
+        imap = zeros(int8(img_w/block_size), int8(img_h/block_size));
+
+        m = 1;
+        while (i + block_size <= img_w)
+            j = 1;
+            n = 1;
+            while (j + block_size <= img_h)
+                current_block = raw_detection_map((i:i+block_size),(j:j+block_size));
+                Var_INoise_each = var(double(current_block(:)));  
+                %fprintf('tour = %i %i\n', m, n);
+                imap(m,n) = Var_INoise_each;            
+                j = j + block_size;
+                n = n + 1;
+            end
+            i = i + block_size;
+            m = m + 1;
         end
-        i = i + block_size;
-        m = m + 1;
+
+        %figure, displayMatrixInColorImage(imap);
+        if is_quantize == 1
+            imap = quantizingMatrix(imap);
+        end
+
+        keySet   = {'totalValue', 'detectionMAP'};
+        valueSet = {mean(double(raw_detection_map(:))), imap}; 
+        output   = containers.Map(keySet, valueSet);
+    else
+        output = rgb2gray(raw_detection_map);
     end
-    
-    %figure, displayMatrixInColorImage(imap);
-    
-    keySet   = {'totalValue', 'detectionMAP'};
-    valueSet = {var(double(raw_detection_map(:))), imap}; 
-    output   = containers.Map(keySet, valueSet);
 end

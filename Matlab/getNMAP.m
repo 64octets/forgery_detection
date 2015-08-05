@@ -1,9 +1,9 @@
 % this function responsible for creating map of noise estimated 
 % from EACH IMAGE BLOCK.
 
-function output = getNMAP (img_path, block_size)
+function output = getNMAP (img_path, block_size, is_quantize, have_block_process)
     % Flags & Tags
-    ENABLE_NOISE_LEVEL = 1;
+    ENABLE_NOISE_LEVEL = 0;
 
     %I.   read image
     IMG = rgb2gray(imread(img_path));
@@ -12,40 +12,48 @@ function output = getNMAP (img_path, block_size)
     
     IMG = getNoiseMap(IMG);  %test
     
-    %II. estimate noise on each blocks
-    [img_w img_h] = size(IMG);
-    i = 1;
-    nmap = zeros(int8(img_w/block_size), int8(img_h/block_size));
-    m = 1;
-    while (i + block_size <= img_w)
-        j = 1;
-        n = 1;
-        while (j + block_size <= img_h)
-            current_block = IMG((i:i+block_size),(j:j+block_size));
-            %fprintf('noise each = %i       %i\n', var(double(current_block(:))), Noise_each);
-            if ENABLE_NOISE_LEVEL == 1
-                Noise_each = getNoiseLevel(current_block);
-                nmap(m,n) = Noise_each;
-            else
-                nmap(m,n) = var(double(current_block(:)));
+    if have_block_process
+        %II. estimate noise on each blocks
+        [img_w img_h] = size(IMG);
+        i = 1;
+        nmap = zeros(int8(img_w/block_size), int8(img_h/block_size));
+        m = 1;
+        while (i + block_size <= img_w)
+            j = 1;
+            n = 1;
+            while (j + block_size <= img_h)
+                current_block = IMG((i:i+block_size),(j:j+block_size));
+                %fprintf('noise each = %i       %i\n', var(double(current_block(:))), Noise_each);
+                if ENABLE_NOISE_LEVEL == 1
+                    Noise_each = getNoiseLevel(current_block);
+                    nmap(m,n) = Noise_each;
+                else
+                    nmap(m,n) = var(double(current_block(:)));
+                end
+
+                j = j + block_size;
+                n = n + 1;
             end
-            
-            j = j + block_size;
-            n = n + 1;
+            i = i + block_size;
+            m = m + 1;
         end
-        i = i + block_size;
-        m = m + 1;
-    end
-    
-    %set key & value mapping
-    keySet   = {'totalValue', 'detectionMAP'};
-    if ENABLE_NOISE_LEVEL == 1
-        valueSet = {getNoiseLevel(IMG), nmap}; 
+
+        if is_quantize == 1
+            nmap = quantizingMatrix(nmap);
+        end
+
+        %set key & value mapping
+        keySet   = {'totalValue', 'detectionMAP'};
+        if ENABLE_NOISE_LEVEL == 1
+            valueSet = {getNoiseLevel(IMG), nmap}; 
+        else
+            valueSet = {mean(double(IMG(:))), nmap}; 
+        end
+
+        output = containers.Map(keySet, valueSet);
     else
-        valueSet = {var(double(IMG(:))), nmap}; 
+        output = IMG;
     end
-    
-    output   = containers.Map(keySet, valueSet);
 end
 
 function NoiseLv = getNoiseLevel(I)
